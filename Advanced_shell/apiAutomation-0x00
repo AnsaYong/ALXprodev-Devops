@@ -7,6 +7,6 @@ response=$(curl -s -w "%{http_code}" -o data.json $url)
 if [ $response -eq 200 ]; then
   echo "Request successful! Data saved to data.json"
 else
-  echo "Request failed with status code $response" >> erros.txt
+  echo "Request failed with status code $response" >> errors.txt
   echo "Error! The response was: $response"
 fi
