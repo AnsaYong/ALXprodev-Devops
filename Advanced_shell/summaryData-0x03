@@ -22,6 +22,10 @@ for json_file in *.json; do
   height_in_meters=$(echo "scale=2; $height / 10" | bc)
   weight_in_kg=$(echo "scale=2; $weight / 10" | bc)
 
+  # Use sed to format height and weight to 2 decimal places
+  height_in_meters=$(echo $height_in_meters | sed 's/\([0-9]*\.[0-9][0-9]\)\([0-9]*\)/\1/')
+  weight_in_kg=$(echo $weight_in_kg | sed 's/\([0-9]*\.[0-9][0-9]\)\([0-9]*\)/\1/')
+
   # Append the data to the CSV file
   echo "$name,$height_in_meters,$weight_in_kg" >> $csv_file
 
@@ -34,6 +38,10 @@ done
 # Calculate the average height and weight using awk
 average_height=$(echo "$total_height / $pokemon_count" | bc -l)
 average_weight=$(echo "$total_weight / $pokemon_count" | bc -l)
+
+# Use sed to format the averages to 2 decimal places
+average_height=$(echo $average_height | sed 's/\([0-9]*\.[0-9][0-9]\)\([0-9]*\)/\1/')
+average_weight=$(echo $average_weight | sed 's/\([0-9]*\.[0-9][0-9]\)\([0-9]*\)/\1/')
 
 # Add the averages to the CSV file
 echo "Average Height (m),$average_height" >> $csv_file
