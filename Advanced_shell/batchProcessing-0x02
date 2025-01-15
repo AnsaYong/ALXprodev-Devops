@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# List of Pokémon names
+pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
+
+# Loop through each Pokémon
+for pokemon in "${pokemon_list[@]}"; do
+  # Define the URL for the Pokémon API request
+  url="https://pokeapi.co/api/v2/pokemon/$pokemon"
+  
+  # Define the output file name
+  output_file="${pokemon}.json"
+
+  # Make the request and save the response to the corresponding file
+  response=$(curl -s -w "%{http_code}" -o $output_file $url)
+
+  # Check if the request was successful (HTTP status code 200)
+  if [ "$response" -eq 200 ]; then
+    echo "Data for $pokemon saved to $output_file."
+  else
+    echo "Request for $pokemon failed with status code $response" >> errors.txt
+    echo "Error for $pokemon logged to errors.txt."
+  fi
+  
+  # Delay between requests to avoid rate-limiting
+  sleep 1
+done
