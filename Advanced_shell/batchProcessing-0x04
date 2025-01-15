@@ -44,8 +44,18 @@ for pokemon in "${pokemon_list[@]}"; do
   fetch_pokemon_data $pokemon &  # Run the fetch function in the background
 done
 
-# Wait for all background processes to complete
+# Wait for all background jobs to complete
 wait
+
+# Check if there are any background jobs that failed (by checking job statuses)
+jobs -l
+failed_jobs=$(jobs -l | grep -c "Exited")
+
+# If any job failed, kill it (optional: not required unless explicitly handling failures)
+if [ $failed_jobs -gt 0 ]; then
+  echo "Some jobs failed. Attempting to kill any remaining jobs..."
+  jobs -p | xargs kill  # Kill all background jobs
+fi
 
 # Print a message once all requests are completed
 echo "All Pokémon data retrieval complete."
