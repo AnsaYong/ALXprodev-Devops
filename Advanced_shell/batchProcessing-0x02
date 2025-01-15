@@ -3,6 +3,10 @@
 # List of Pokémon names
 pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
 
+# Maximum retry attempts
+max_retries=3
+retry_delay=2  # seconds
+
 # Loop through each Pokémon
 for pokemon in "${pokemon_list[@]}"; do
   # Define the URL for the Pokémon API request
@@ -11,14 +15,28 @@ for pokemon in "${pokemon_list[@]}"; do
   # Define the output file name
   output_file="${pokemon}.json"
 
-  # Make the request and save the response to the corresponding file
-  response=$(curl -s -w "%{http_code}" -o $output_file $url)
+  # Retry logic
+  attempt=0
+  success=0
+  while [ $attempt -lt $max_retries ]; do
+    # Make the request and save the response to the corresponding file
+    response=$(curl -s -w "%{http_code}" -o $output_file $url)
 
-  # Check if the request was successful (HTTP status code 200)
-  if [ "$response" -eq 200 ]; then
-    echo "Data for $pokemon saved to $output_file."
-  else
-    echo "Request for $pokemon failed with status code $response" >> errors.txt
+    # Check if the request was successful (HTTP status code 200)
+    if [ "$response" -eq 200 ]; then
+      success=1
+      echo "Data for $pokemon saved to $output_file."
+      break
+    else
+      attempt=$((attempt + 1))
+      echo "Attempt $attempt failed for $pokemon. HTTP Status Code: $response"
+      sleep $retry_delay  # Wait before retrying
+    fi
+  done
+
+  # If the request failed after all retries, log the error and continue to the next Pokémon
+  if [ $success -eq 0 ]; then
+    echo "Request for $pokemon failed after $max_retries attempts. Logging error." >> errors.txt
     echo "Error for $pokemon logged to errors.txt."
   fi
   
